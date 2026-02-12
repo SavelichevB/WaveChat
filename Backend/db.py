@@ -3,7 +3,7 @@ from pymysql.cursors import DictCursor
 
 class GetDB: # -- Config Class DataBase
     def __init__(self):
-        self.__dbdata = ['localhost', 'root', '', 'wavechat']
+        self.__dbdata = ['localhost', 'root', '', 'wave_chat']
         self._con = None
 
     def host(self):
@@ -32,12 +32,32 @@ class GetConnect(GetDB): # -- Get Connect to DataBase
             print(f"Error Connect to DataBase: {e}")
             return None
     
-    def query(self, sql, params=None): # -- Request to DataBase
+    def query(self, sql, params=None): # -- Request to DataBase (SELECT)
+      try:
         if not self._con:
             self.connectDB()
         with self._con.cursor() as cursor:
             cursor.execute(sql, params or ())
             return cursor.fetchall()
+      except Exception as e:
+          print(f'MySQL Error -- Query : {e}')
+          return False
+          
+    
+    def execute(self, sql, params=None):  # -- Request to DataBase (UPDATE, INSERT, DELETE)
+      try:
+        if not self._con:
+          self.connectDB()
+        with self._con.cursor() as cursor:
+            cursor.execute(sql, params or ())
+            self._con.commit()
+            id_request = cursor.lastrowid
+            if id_request:
+                return id_request
+            return True
+      except Exception as e:
+          print(f'MySQL Error -- Execute : {e}')
+          return False
         
     def close(self): # -- Close connect to DataBase
         if self._con:

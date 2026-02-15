@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <title>TEst</title>
+       <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    </head>
+    <body>
+      <input type="text" id="inp"> 
+      <input type="button" value="Send" onclick="SendMessage()">
+      
+      <script>
+         const input_t = document.getElementById('inp');
+         var connect = io();
+         function SendMessage(){
+            client_text = input_t.value;
+            connect.send(client_text);
+         }
+         connect.on('message', function(msg){
+            const OnMessage = document.createElement('h1');
+            OnMessage.textContent = msg;
+            document.body.appendChild(OnMessage);
+         });
+
+      </script>
+    </body>
+</html>

@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_socketio import SocketIO, emit
 from datetime import timedelta
 from models.auth import Auth
 
@@ -15,7 +16,7 @@ jwt = JWTManager(app)
 #Objects:
 auth = Auth()
 
-#Endpoints: 
+#====Endpoints====: 
 @app.route('/', methods=['GET'])
 def Home():
  return jsonify({
@@ -24,6 +25,8 @@ def Home():
    'version': '1.0.0.0'
  }), 200  
 
+
+#====Point==Auth=====:
 @app.route('/auth/reg', methods=['POST'])
 def registr_users():
   try:
@@ -78,6 +81,9 @@ def verify_token():
   except Exception as e:
     print(e)
     return jsonify({'Info': 'Fatal error verify token'}), 403
+  
+#====Point==Message====:
+
 
 
 if __name__ == '__main__':

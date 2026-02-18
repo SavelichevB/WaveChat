@@ -3,6 +3,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from flask_socketio import SocketIO, emit
 from datetime import timedelta
 from models.auth import Auth
+from models.message import GetMessage, PostMessage
 
 #Create app:
 app = Flask(__name__)
@@ -15,6 +16,8 @@ jwt = JWTManager(app)
 
 #Objects:
 auth = Auth()
+gm = GetMessage()
+pm = PostMessage()
 
 #====Endpoints====: 
 @app.route('/', methods=['GET'])
@@ -80,11 +83,48 @@ def verify_token():
     return jsonify({'Success': True, 'Client_id': client_id}), 200
   except Exception as e:
     print(e)
-    return jsonify({'Info': 'Fatal error verify token'}), 403
+    return jsonify({'Info': 'Fatal error verify token'}), 500
   
 #====Point==Message====:
 
+@app.route('/message/send/id', methods=['POST'])
+@jwt_required()
+def send_message():
+  try:
+    sender_id = get_jwt_identity()
+    receiver_id = request.json.get('from')
+    text = request.json.get('text')  
 
+    check, log = pm.send_private_message(receiver_id, sender_id, text)  
+
+    if not check: jsonify({'Info': 'Error send message', 'Log': log}), 400
+
+    return jsonify({
+      'Success': True,
+      'Info': 'Message was senden'
+    }), 200
+  
+  except:
+    return jsonify({'Info': 'Fatal error send message'}), 500
+
+@app.route('/message/send/chat', methods=['POST'])
+@jwt_required()
+def send_message_chat():
+  try:
+     sender_id = get_jwt_identity()
+     chat_id = request.json.get('chat_id')
+     text = request.json.get('text')
+
+     check, log = pm.send_chat_message(chat_id, sender_id, text)
+     if not check: return jsonify({'Info': 'Error send message', 'Log': log}), 400
+     if log == False: return jsonify({'Info': 'Error send message', 'Log': log}), 400
+
+     return jsonify({
+      'Success': True,
+      'Info': 'Message was senden'
+     }), 200
+  except:
+     return jsonify({'Info': 'Fatal error send message'}), 500
 
 if __name__ == '__main__':
   app.run(debug=True, port=3333)

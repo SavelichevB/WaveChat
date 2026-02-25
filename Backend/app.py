@@ -4,6 +4,7 @@ from flask_socketio import SocketIO, emit
 from datetime import timedelta
 from models.auth import Auth
 from models.message import GetMessage, PostMessage
+from models.users import UserData
 
 #Create app:
 app = Flask(__name__)
@@ -18,6 +19,7 @@ jwt = JWTManager(app)
 auth = Auth()
 gm = GetMessage()
 pm = PostMessage()
+ud = UserData()
 
 #====Endpoints====: 
 @app.route('/', methods=['GET'])
@@ -97,7 +99,7 @@ def send_message():
 
     check, log = pm.send_private_message(receiver_id, sender_id, text)  
 
-    if not check: jsonify({'Info': 'Error send message', 'Log': log}), 400
+    if not check: return jsonify({'Info': 'Error send message', 'Log': log}), 400
 
     return jsonify({
       'Success': True,
@@ -125,6 +127,79 @@ def send_message_chat():
      }), 200
   except:
      return jsonify({'Info': 'Fatal error send message'}), 500
+  
+@app.route('/message/get', methods=['POST'])
+@jwt_required()
+def get_message():
+  try:
+    client_id = get_jwt_identity()
+    chat_id = request.json.get('chat_id')
+
+    check, data = gm.get_private_message(chat_id, client_id) 
+    if not check: return jsonify({'Info': 'Error get messages'}), 400
+    if not data: return jsonify({'Success': False}), 200
+
+    return jsonify({
+      'Success': True,
+      'Data': data,
+      'Count': len(data)
+    }), 200
+  except:
+    return jsonify({'Info': 'Fatal error get message'}), 500
+  
+#====Point==Chats====:
+@app.route('/chat/get', methods=['GET'])
+@jwt_required()
+def get_chat():
+  try:
+    client_id = get_jwt_identity()
+    if not client_id: return jsonify({'Info': 'Forbidden'}), 403
+
+    check, chats = gm.get_users_chats(client_id)
+    if not check: return jsonify({'Info': 'Error Get user chats', 'Log': chats}), 400
+    
+    if not chats: return jsonify({'Success': True, 'Data': [], 'Count': 0}), 200
+    return jsonify({
+      'Success': True, 
+      'Data': chats,
+      'Count': len(chats)
+    }), 200
+  except:
+    return jsonify({'Info': 'Fatal error get chats'}), 500
+  
+#====Point==User====:
+@app.route('/users/me', methods=['GET'])
+@jwt_required()
+def get_users_me():
+  try:
+    client_id = get_jwt_identity()
+    if not client_id: return jsonify({'Info': 'Forbidden'}), 403
+
+    check, data = ud.get_all_data(client_id)
+    if not check: return jsonify({'Info': 'Error Get user data', 'Log': data}), 400
+
+    return jsonify({
+      'Success': True, 
+      'Data': data
+    }), 200    
+  except:
+    return jsonify({'Info': 'Fatal error get chats'}), 500
+
+@app.route('/users/get', methods=['POST'])
+def get_users_open():
+  try:
+    client_id = request.json.get('id')
+    if not client_id: return jsonify({'Info': 'Forbidden'}), 403
+
+    check, data = ud.get_open_data(client_id)
+    if not check: return jsonify({'Info': 'Error Get user data', 'Log': data}), 400
+
+    return jsonify({
+      'Success': True, 
+      'Data': data
+    }), 200    
+  except:
+    return jsonify({'Info': 'Fatal error get chats'}), 500
 
 if __name__ == '__main__':
   app.run(debug=True, port=3333)

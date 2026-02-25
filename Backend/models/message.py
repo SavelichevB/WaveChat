@@ -30,15 +30,22 @@ class GetMessage:
      print(f"Error Get Private Chats -- {e}")
      return False, False
    
- def get_private_message(self, chat_id): #Function for the GET PERSON MESSAGES 
+ def get_private_message(self, chat_id, client_id): #Function for the GET PERSON MESSAGES 
    try:
-     if not chat_id: return False, "Error Chat_ID not found"
+     if not chat_id or not client_id: return False, "Error Chat or Client not found"
+
+     check = self.check_user_chat(client_id, chat_id)
+     if not check: return False, 'User not found in chat'
 
      chat_message = self.db.query('''SELECT id, from_id, text, time, is_read, is_edit
       FROM chat_message WHERE chat_id=%s 
       ORDER BY time ASC
       LIMIT %s''', (chat_id, limit_message_chat)) 
      if not chat_message: return True, False
+
+     for msg in chat_message:
+       if msg['text']:
+         msg['text'] = self.em.decrypt_message(msg['text'])
 
      return True, chat_message
    except:
@@ -91,7 +98,7 @@ class PostMessage(GetMessage):
   def send_chat_message(self, chat_id, client_id, text):
     try:
        if not client_id or not chat_id or not text: return False, "ID or TEXT not found"
-
+       if len(text) <= 0: return False, 'Text < 1 len'
        if self.check_user_chat(client_id, chat_id) == False: return False, "Client not found in chat"
 
        encrypt_text = self.em.encrypt_message(text)

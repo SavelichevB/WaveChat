@@ -1,0 +1,22 @@
+:root{
+  --background: white;
+  --up-background: rgba(255, 255, 255, 0.862);
+  --up-border: rgba(0, 0, 0, 0.177);
+  --up-text: rgb(85, 170, 255);
+  --hover-effect: rgb(46, 161, 255);
+  --btn-color: rgba(98, 166, 255, 0.827);
+  --main-text: rgb(0, 0, 0);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--main-text);
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+

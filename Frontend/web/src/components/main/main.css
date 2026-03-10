@@ -1,0 +1,248 @@
+:root{
+  --background: white;
+  --up-background: rgba(255, 255, 255, 0.862);
+  --up-border: rgba(0, 0, 0, 0.177);
+  --up-text: rgb(85, 170, 255);
+  --hover-effect: rgb(46, 161, 255);
+  --btn-color: rgba(98, 166, 255, 0.827);
+  --main-text: rgb(0, 0, 0);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--main-text);
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+/* Up element */
+.up-blc {
+  width: 100%;
+  height: 70px;
+  background: var(--up-background);
+  border-bottom: 1px solid var(--up-border);
+  backdrop-filter: blur(10px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3%;
+}
+
+.up-btn {
+  color: var(--up-text);
+  font-size: 20px;
+  display: flex;
+  gap: 20px;
+}
+
+.up-btn label {
+  width: 110px;
+  height: 40px;
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: border 0.5s ease;
+}
+
+.up-btn label:hover {
+  border-bottom: 3px solid var(--hover-effect); 
+}
+
+.up-link {
+  color: var(--up-text);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Main */
+.info-menu {
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  padding: 40px 20px;
+}
+
+.logo {
+  width: 400px;
+  height: 400px;
+  background-color: transparent; 
+  background-image: url('https://wavemini.ru/a/wavechat/logo1.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-top: -150px;
+}
+
+.home-block section {
+  font-size: 35px;
+  text-align: center;
+  margin-top: -50px;
+}
+
+.login-block {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.login-block button {
+  width: 220px;
+  height: 50px;
+  transition: all 0.5s;
+}
+
+.login-block button:hover {
+  color: rgb(0, 98, 255);
+  transform: translateY(-10px);
+}
+
+/* Download */
+.dowl-menu {
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 120px;
+}
+
+.dowl-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+  padding: 0 20px 40px;
+}
+
+.dowl-block section {
+  color: var(--hover-effect);
+  font-size: 30px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.dowl-section {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  flex-wrap: wrap;
+  margin: 0 auto;
+}
+
+.dowl-section label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  max-width: 350px;
+}
+
+.dowl-section label:hover {
+  transform: translateY(-5px);
+}
+
+.dowl-img {
+  width: 350px;
+  height: 200px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 20px;
+  background-color: rgb(255, 255, 255);
+  transition: all 0.4s ease;
+  border-top: 1px solid var(--hover-effect);
+}
+
+.dowl-section button {
+  width: 350px;
+  height: 50px;
+  transition: all 0.4s ease;
+  font-family: inherit;
+}
+
+.dowl-section button:hover {
+  color: rgb(0, 98, 255);
+  transform: translateY(-5px);
+  background: var(--up-background);
+}
+
+/* Footer */
+.footer {
+  width: 100%;
+  background: white;
+  border-top: 1px solid var(--up-border);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.f-block1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+
+.f-block1 h4 { 
+  cursor: pointer; 
+  transition: color 0.2s;
+  font-size: 18px;
+}
+
+.f-block1 h4:hover { 
+  color: var(--hover-effect);
+}
+
+.f-block1 p {
+  color: #666;
+  font-size: 14px;
+}
+
+.f-block2 {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.f-block2 i {
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.f-block2 i:hover { 
+  color: var(--hover-effect);
+}

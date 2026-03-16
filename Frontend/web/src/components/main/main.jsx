@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import './main.css' 
 import '../index.css'
+import './main.css' 
+
 
   export function Header({ activePoint }) {
     const nav = useNavigate()

@@ -1,0 +1,20 @@
+-------Colors---web-----:
+
+BACKGROUND: #F7FBFC
+
+COLOR №1: #D6E6F2 
+COLOR №2: #B9D7EA
+COLOR №3: #5cbbff
+
+BUTTON №1: #769FCD
+ BUTTON HOVER №1: #5B8EC9
+
+
+TEXT COLOR #1: #000
+TEXT COLOR #2: #2C3E50
+TEXT COLOR #3: #2C5A7A
+
+COLOR STATUS #(online): 
+COLOR STATUS #(offline): 
+
+DIVIDER: rgba(118, 159, 205, 0.2)

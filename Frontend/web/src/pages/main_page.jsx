@@ -10,7 +10,7 @@ export function E404() {
         >
             <h1>Page not found</h1>
             <h3 style={{color: 'orange', marginLeft: '2px'}}>404 - Not Found</h3>
-            <h1 style={{fontSize: '100px', transform: 'rotate(25deg)', left: '10%'}}>:(</h1>
+            <h1 style={{fontSize: '2vw', transform: 'rotate(25deg)', left: '10%'}}>:(</h1>
         </div>
         <Footer/>
         </>

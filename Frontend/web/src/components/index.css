@@ -3,7 +3,7 @@ html {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -11,8 +11,24 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 123, 255, 0.3); 
+  background: rgba(0, 123, 255, 0.479); 
   border-radius: 2px;
+}
+:root{
+  --background: #F7FBFC;
+  --main-text: #000;
+  --other-text: #2C3E50;
+  --other-text-2: whitesmoke;
+
+  --divider-color: rgba(118, 159, 205, 0.2);
+  --up-text: #2C5A7A;
+  --hover-effect: #5cbbff;
+
+  --btn-color: #769FCD;
+  --btn-hover-color: #5B8EC9;
+  --btn-border: #D6E6F2;
+
+  --color-1: #B9D7EA; 
 }
 
 .controls button {
@@ -21,11 +37,15 @@ html {
   border-radius: 30px;
   color: whitesmoke;
   font-size: 16px;
-  box-shadow: 0px 0px 0px 0.5px var(--hover-effect);
+  box-shadow: 0px 0px 0px 0.5px var(--btn-border);
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;  
+}
+
+.controls button:hover{
+  background: var(--btn-hover-color);
 }
 
 .controls button:active {

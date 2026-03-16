@@ -1,12 +1,3 @@
-:root{
-  --background: white;
-  --up-background: rgba(255, 255, 255, 0.862);
-  --up-border: rgba(0, 0, 0, 0.177);
-  --up-text: rgb(85, 170, 255);
-  --hover-effect: rgb(46, 161, 255);
-  --btn-color: rgba(98, 166, 255, 0.827);
-  --main-text: rgb(0, 0, 0);
-}
 
 * {
   margin: 0;
@@ -24,8 +15,8 @@ body {
 .up-blc {
   width: 100%;
   height: 70px;
-  background: var(--up-background);
-  border-bottom: 1px solid var(--up-border);
+  background: rgba(255, 255, 255, 0.39);
+  border-bottom: 1px solid var(--divider-color);
   backdrop-filter: blur(10px);
   position: fixed;
   top: 0;
@@ -39,13 +30,13 @@ body {
 
 .up-btn {
   color: var(--up-text);
-  font-size: 20px;
+  font-size: 19px;
   display: flex;
-  gap: 20px;
+  gap: 15px;
 }
 
 .up-btn label {
-  width: 110px;
+  width: 100px;
   height: 40px;
   background: transparent;
   border-bottom: 3px solid transparent;
@@ -118,7 +109,7 @@ body {
 }
 
 .login-block button:hover {
-  color: rgb(0, 98, 255);
+  color: var(--color-1);
   transform: translateY(-10px);
 }
 
@@ -139,9 +130,8 @@ body {
 }
 
 .dowl-block section {
-  color: var(--hover-effect);
+  color: var(--main-text);
   font-size: 30px;
-  font-weight: bold;
   text-align: center;
 }
 
@@ -165,10 +155,6 @@ body {
   max-width: 350px;
 }
 
-.dowl-section label:hover {
-  transform: translateY(-5px);
-}
-
 .dowl-img {
   width: 350px;
   height: 200px;
@@ -176,9 +162,8 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 20px;
-  background-color: rgb(255, 255, 255);
-  transition: all 0.4s ease;
-  border-top: 1px solid var(--hover-effect);
+  background-color: rgba(255, 255, 255, 0);
+  border-top: 1px solid var(--color-1);
 }
 
 .dowl-section button {
@@ -189,16 +174,14 @@ body {
 }
 
 .dowl-section button:hover {
-  color: rgb(0, 98, 255);
-  transform: translateY(-5px);
-  background: var(--up-background);
+  color: var(--color-1);
+  transform: translateY(-3px);
 }
 
 /* Footer */
 .footer {
   width: 100%;
-  background: white;
-  border-top: 1px solid var(--up-border);
+  border-top: 1px solid var(--divider-color);
   padding: 30px 20px;
   display: flex;
   flex-direction: column;
@@ -245,4 +228,17 @@ body {
 
 .f-block2 i:hover { 
   color: var(--hover-effect);
+}
+
+@media (max-width: 768px){
+ .up-blc{
+  font-size: 10px;
+  padding: 0 3%;
+ } 
+ .up-btn{
+   gap: 5px;
+ }
+ .up-link{
+   font-size: 15px;
+ }
 }

@@ -1,7 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_socketio import SocketIO, emit
 from datetime import timedelta
+
+from config import cookie_token
 from models.auth import Auth
 from models.message import GetMessage, PostMessage
 from models.users import UserData
@@ -10,9 +13,18 @@ from models.users import UserData
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'WaveMini'
 
+#Cors:
+CORS(app, 
+     supports_credentials=True, 
+     origins=["http://localhost:5173", "http://192.168.0.18:5173"],
+     allow_headers=["Content-Type", "Authorization", "Cookie", "X-Requested-With"],
+     expose_headers=["Set-Cookie"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+protocol = False  #HTTPS or HTTP, if HTTPS => true
+
 #JWT Config:
 app.config['JWT_SECRET_KEY'] = 'WaveMini'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=30)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 jwt = JWTManager(app)
 
 #Objects:
@@ -43,10 +55,20 @@ def registr_users():
     if not data_reg: return jsonify({'Info': 'Username or Password incorrect for the registation', 'Log': log}), 400
     access_token = create_access_token(identity=str(log))
     if not access_token: return jsonify({'Info': 'Error app for regisration'}), 400
-    return jsonify({
-      'Success': True,
-      'Token': access_token
-      }), 200
+
+    response = make_response(jsonify({'Success': True}))
+    response.set_cookie(
+      'token',
+      access_token,
+      httponly=True,
+      secure=protocol,
+      samesite='Lax',
+      max_age=timedelta(days=7),
+      path='/',
+      domain='localhost'
+    )
+
+    return response, 200
     
   except Exception as e:
     return jsonify({
@@ -66,10 +88,19 @@ def login_user():
     access_token = create_access_token(identity=str(log))
     if not access_token: return jsonify({'Info': 'Error app for login'}), 400
 
-    return jsonify({
-      'Success': True,
-      'Token': access_token      
-    }), 200
+    response = make_response(jsonify({'Success': True}))
+    response.set_cookie(
+      'token',
+      access_token,
+      httponly=True,
+      secure=protocol,
+      samesite='Lax',
+      max_age=timedelta(days=7),
+      path='/',
+      domain='localhost'
+    )
+
+    return response, 200
 
   except Exception as e:
     return jsonify({
@@ -77,15 +108,40 @@ def login_user():
     }), 500
 
 @app.route('/auth/check', methods=['GET'])
-@jwt_required()
+@cookie_token
 def verify_token():
   try:
-    client_id = get_jwt_identity()
+    client_id = request.client_id
     if not client_id or int(client_id) < 0: return jsonify({'Info': 'Error verify token'}), 403
     return jsonify({'Success': True, 'Client_id': client_id}), 200
   except Exception as e:
     print(e)
     return jsonify({'Info': 'Fatal error verify token'}), 500
+
+@app.route('/auth/logout', methods=['POST'])
+def logout():
+  try:
+    if request.method == 'OPTIONS':
+      return '', 200
+    
+    responce = make_response(jsonify({'Success': True}))
+    responce.set_cookie(
+      'token',
+      '',
+      httponly=True,
+      secure=protocol,
+      samesite='Lax',
+      max_age=0,
+      path='/',
+      domain='localhost'      
+    )
+    return responce, 200
+    
+  except Exception as e:
+    return jsonify({'Success': False, 'Info': 'Server Error logout'})
+
+  
+  
   
 #====Point==Message====:
 

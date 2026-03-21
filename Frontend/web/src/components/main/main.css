@@ -109,7 +109,6 @@ body {
 }
 
 .login-block button:hover {
-  color: var(--color-1);
   transform: translateY(-10px);
 }
 

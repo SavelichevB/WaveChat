@@ -1,6 +1,21 @@
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
+from functools import wraps
+from flask import request, jsonify
 import base64
 from db import GetConnect
+
+def cookie_token(f):
+   def decorated(*args, **kwargs):
+     token = request.cookies.get('token')
+     if not token:
+       return jsonify({'Info': 'Not token'}), 401 
+     try:
+       decoded = decode_token(token)
+       request.client_id = decoded.get('sub')
+     except:
+       return jsonify({'Info': 'Invalid token'}), 401
+     return f(*args, **kwargs)
+   return decorated 
 
 class WorkData:  
 
@@ -77,4 +92,4 @@ class WorkData:
    except:
      print("Error Decrypt meta data")
      return False
-    
+   

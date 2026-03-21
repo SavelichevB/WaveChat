@@ -1,6 +1,7 @@
 import React, { use, useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useBodyClass } from '../../hooks/useBody'
+import { useAuth } from '../../hooks/useAuth'
 import '../index.css'
 import './auth.css'
 
@@ -78,25 +79,47 @@ export function Reg_login() {
   )
 }
 
-export function Reg_password() {
+export function Reg_password({ onLog }) {
   const [isPass, setIsPass] = useState(false)
+  const [password, setPassword] = useState('')
+  const { username } = useParams()
+
   const nav = useNavigate()
+
+  const { load, register } = useAuth()
+  const handleReg = async () => {
+    if(!password || password.length < 8 || password.length > 100) {
+      onLog('Incorrect password, try again')
+      return
+    }
+
+    const res = await register(username, password)
+    if(!res) {
+       onLog('Error')
+    }
+  }
+
   return (
     <>
        <div className='icon-auth'><i className="fa-solid fa-lock"></i></div>
       <div className='auth-input'>
          <form>
-           <p>Create safe password</p>
+           <p>Create safe password for <b>@{username}</b></p>
            <div className='input-wrapper'>
              <span
               onClick={() => setIsPass(!isPass)}
               style={{cursor: 'pointer', fontSize: '20px', opacity: '1'}}
              ><i className={`fa-regular ${ isPass ? 'fa-eye' : 'fa-eye-slash' }`}></i></span>
              <input
-              type={isPass ? 'text' : 'password'} placeholder='Enter Password'
-             ></input>
+              type={isPass ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => {
+                 setPassword(e.target.value)
+              }}
+              placeholder='Enter Password'
+              required></input>
            </div>
-           <button>Next</button>
+           <button type="button" onClick={handleReg}>Next</button>
          </form>
       </div>
     </>

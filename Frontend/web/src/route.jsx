@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom"
 import { MainPage, E404, DowPage } from "./pages/main_page"
 import { RegistePage, LoginPage } from "./pages/auth_page"
 import { PrivateRoute, PublicRoute } from "./utils/route_config"
+import { LogoutAccount } from "./components/auth/auth"
 
 export function App() {
   return (
@@ -28,6 +29,10 @@ export function App() {
           <PrivateRoute>
             <h1>This chat...</h1>
           </PrivateRoute>
+         }></Route>
+
+         <Route path="/a/logout" element={
+             <LogoutAccount />
          }></Route>
        </Routes>
     </BrowserRouter>

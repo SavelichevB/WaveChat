@@ -4,9 +4,8 @@ import {MainWindow, Reg_login, Reg_password, Login_login, Login_password} from '
 
 export function RegistePage() {
   const { username } = useParams()
-  const { logs, setlogs } = useParams()
   const [ isLog, setIsLog ] = useState(true)
-  const [ childLog, setClildLog] = useState('')
+  const [ childLog, setChildLog] = useState('')
 
 
   const isValid = username && username.length >= 3 && username.length <= 30
@@ -14,11 +13,11 @@ export function RegistePage() {
   const logMessage = username && !isValid ? 'Incorrect username' : ''
 
   const handleChild = (message) => {
-    setClildLog(message)
+    setChildLog(message)
   }
   const handleClose = () => {
     setIsLog(false),
-    setClildLog('')
+    setChildLog('')
   }
 
   const displayLog = childLog || (isLog ? logMessage : '')
@@ -35,19 +34,29 @@ export function RegistePage() {
 
 export function LoginPage() {
   const { username } = useParams()
-  const { logs, setlogs } = useParams()
   const [ isLog, setIsLog ] = useState(true)
+  const [ childLog, setChildLog] = useState('')
 
   const isValid = username && username.length >= 3 && username.length <= 30
   const validUsername = isValid ? username : ''
   const logMessage = username && !isValid ? 'Incorrect username' : ''
 
+  const handleChild = (message) => {
+    setChildLog(message)
+  }
+  const handleClose = () => {
+    setIsLog(false),
+    setChildLog('')
+  }
+
+  const displayLog = childLog || (isLog ? logMessage : '')
+
   return (
      <MainWindow
-      log={isLog ? logMessage  : ''}
-     onClose={() => setIsLog(false)}
+      log={displayLog}
+     onClose={handleClose}
      >
-       {validUsername ? <Login_password/> : <Login_login/>}
+       {validUsername ? <Login_password onLog={handleChild}/> : <Login_login/>}
     </MainWindow>
   )
 }

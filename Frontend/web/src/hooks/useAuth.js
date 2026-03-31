@@ -29,10 +29,14 @@ export function useAuth() {
                 nav('/')
                 return true
             }
+            return false
         }
         catch(error){
             console.log('Error logout: ', error)
             return false
+        }
+        finally{
+            setLoad(false)
         }
     }
 
@@ -42,15 +46,15 @@ export function useAuth() {
            const res = await api_auth.login(username, password)
            if(res?.Success) {
              nav('/k/')
-             return true
+             return { success: true, status: res._status}
            }
            else {
-             return false
+             return { success: false, status: res._status}
            }
         }
         catch(error){
             console.log('Login error: ', error)
-            return false
+            return { success: false, status: res._status}
         }
         finally {
             setLoad(false)
@@ -63,15 +67,15 @@ export function useAuth() {
            const res = await api_auth.register(username, password)
            if(res?.Success) {
              nav('/k/')
-             return true
+             return { success: true, status: res._status}
            }
            else {
-             return false
+              return { success: false, status: res._status}
            }
         }
         catch(error){
             console.log('Register error: ', error)
-            return false
+            return { success: false, status: res._status}
         }
         finally {
             setLoad(false)

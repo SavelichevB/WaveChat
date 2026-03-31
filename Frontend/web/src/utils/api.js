@@ -15,7 +15,12 @@ export const apiSend = {
         headers: headers,
         body: JSON.stringify(data)
       })
-      return await res.json()
+      const dataRes = await res.json()
+
+      return {
+        ...dataRes,
+        _status: res.status
+      }
     }
     catch(error){
       return {
@@ -32,7 +37,12 @@ export const apiSend = {
         mode: 'cors',
         headers: headers,
       })
-      return await res.json()
+      const dataRes = await res.json()
+
+      return {
+        ...dataRes,
+        _status: res.status
+      }
     }
     catch(error){
       return {

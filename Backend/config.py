@@ -5,6 +5,7 @@ import base64
 from db import GetConnect
 
 def cookie_token(f):
+   @wraps(f)
    def decorated(*args, **kwargs):
      token = request.cookies.get('token')
      if not token:

@@ -12,7 +12,7 @@ export const api_auth = {
     },
 
     logout: async () => {
-       const res = await apiSend.post('auth/logout')
+       const res = await apiSend.post('auth/logout', {})
        return res
     },
 

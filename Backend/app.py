@@ -146,10 +146,10 @@ def logout():
 #====Point==Message====:
 
 @app.route('/message/send/id', methods=['POST'])
-@jwt_required()
+@cookie_token
 def send_message():
   try:
-    sender_id = get_jwt_identity()
+    sender_id = request.client_id
     receiver_id = request.json.get('from')
     text = request.json.get('text')  
 
@@ -166,10 +166,10 @@ def send_message():
     return jsonify({'Info': 'Fatal error send message'}), 500
 
 @app.route('/message/send/chat', methods=['POST'])
-@jwt_required()
+@cookie_token
 def send_message_chat():
   try:
-     sender_id = get_jwt_identity()
+     sender_id = request.client_id
      chat_id = request.json.get('chat_id')
      text = request.json.get('text')
 
@@ -185,10 +185,10 @@ def send_message_chat():
      return jsonify({'Info': 'Fatal error send message'}), 500
   
 @app.route('/message/get', methods=['POST'])
-@jwt_required()
+@cookie_token
 def get_message():
   try:
-    client_id = get_jwt_identity()
+    client_id = request.client_id
     chat_id = request.json.get('chat_id')
 
     check, data = gm.get_private_message(chat_id, client_id) 
@@ -205,10 +205,11 @@ def get_message():
   
 #====Point==Chats====:
 @app.route('/chat/get', methods=['GET'])
-@jwt_required()
+@cookie_token
 def get_chat():
   try:
-    client_id = get_jwt_identity()
+    client_id = request.client_id
+
     if not client_id: return jsonify({'Info': 'Forbidden'}), 403
 
     check, chats = gm.get_users_chats(client_id)
@@ -225,10 +226,10 @@ def get_chat():
   
 #====Point==User====:
 @app.route('/users/me', methods=['GET'])
-@jwt_required()
+@cookie_token
 def get_users_me():
   try:
-    client_id = get_jwt_identity()
+    client_id = request.client_id
     if not client_id: return jsonify({'Info': 'Forbidden'}), 403
 
     check, data = ud.get_all_data(client_id)

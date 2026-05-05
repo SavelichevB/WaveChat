@@ -53,5 +53,5 @@ class Encrypt:
      
      except Exception as e:
         print(f"Error decryption text: {e}")
-        return False       
+        return data     
 

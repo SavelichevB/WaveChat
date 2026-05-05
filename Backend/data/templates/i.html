@@ -10,7 +10,7 @@
       
       <script>
          const input_t = document.getElementById('inp');
-         var connect = io();
+         var connect = io('http://192.168.0.18:5000');
          function SendMessage(){
             client_text = input_t.value;
             connect.send(client_text);

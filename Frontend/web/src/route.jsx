@@ -4,6 +4,7 @@ import { MainPage, E404, DowPage } from "./pages/main_page"
 import { RegistePage, LoginPage } from "./pages/auth_page"
 import { PrivateRoute, PublicRoute } from "./utils/route_config"
 import { LogoutAccount } from "./components/auth/auth"
+import { ChatPage } from "./pages/chat_page"
 
 export function App() {
   return (
@@ -25,10 +26,10 @@ export function App() {
           </PublicRoute>
           }></Route>
 
-         <Route path="/k/" element={
-          <PrivateRoute>
-            <h1>This chat...</h1>
-          </PrivateRoute>
+         <Route path="/k/:username?" element={
+      
+               <ChatPage />
+    
          }></Route>
 
          <Route path="/a/logout" element={

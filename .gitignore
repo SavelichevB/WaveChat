@@ -51,6 +51,10 @@ coverage.xml
 .pytest_cache/
 cover/
 
+package.json
+package-lock.json
+node_modules/
+
 # Translations
 *.mo
 *.pot

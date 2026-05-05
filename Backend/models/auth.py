@@ -13,6 +13,7 @@ class Auth:
        if not username or not password: return False, "Username or Password not found"
        if self.wd.ValidationData(1, data=[username]) == False or self.wd.ValidationData(2, data=[password]) == False: return False, "Invalid username or password"  
 
+       username = username.strip().lower()
        username_crypt = self.wd.encrypt_meta(username) #Encrypt username
 
        check_auth = self.db.query("SELECT id FROM accounts WHERE username=%s", (username_crypt,))
@@ -35,6 +36,7 @@ class Auth:
         if not username or not password: return False, "Username or Password not found"
         if self.wd.ValidationData(1, data=[username]) == False or self.wd.ValidationData(2, data=[password]) == False: return False, "Invalid username or password"  
 
+        username = username.strip().lower()
         username_crypt = self.wd.encrypt_meta(username) #Encrypt username
 
         search_user = self.db.query("SELECT id, password FROM accounts WHERE username=%s", (username_crypt,))

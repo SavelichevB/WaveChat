@@ -1,66 +1,46 @@
 import pymysql
 from pymysql.cursors import DictCursor
+from dbutils.pooled_db import PooledDB
 
-class GetDB: # -- Config Class DataBase
-    def __init__(self):
-        self.__dbdata = ['localhost', 'root', '', 'wave_chat']
-        self._con = None
-
-    def host(self):
-        return self.__dbdata[0]
-    def user(self):
-        return self.__dbdata[1]
-    def password(self):
-        return self.__dbdata[2]
-    def name(self):
-        return self.__dbdata[3]
+class GetConnect:
+    _pool = None
     
-class GetConnect(GetDB): # -- Get Connect to DataBase
-    def connectDB(self):
+    @classmethod
+    def get_pool(cls):
+        if cls._pool is None:
+            cls._pool = PooledDB(
+                creator=pymysql,
+                maxconnections=20,  
+                mincached=5,           
+                maxcached=10,          
+                blocking=True,        
+                ping=1,                
+                host='localhost',
+                user='root',
+                password='',
+                database='wave_chat',
+                charset='utf8mb4',
+                cursorclass=DictCursor,
+                autocommit=True
+            )
+            print("✅ MySQL Start")
+        return cls._pool
+    
+    def query(self, sql, params=None):
+        conn = self.get_pool().connection()
         try:
-           self._con = pymysql.connect(
-               host=self.host(),
-               user=self.user(),
-               password=self.password(),
-               database=self.name(),
-               charset='utf8mb4',
-               cursorclass=DictCursor
-           )
-           print("MySQL connected!")
-           return self._con
-        except Exception as e:
-            print(f"Error Connect to DataBase: {e}")
-            return None
+            with conn.cursor() as cursor:
+                cursor.execute(sql, params or ())
+                return cursor.fetchall()
+        finally:
+            conn.close()  # Возвращает в пул
     
-    def query(self, sql, params=None): # -- Request to DataBase (SELECT)
-      try:
-        if not self._con:
-            self.connectDB()
-        with self._con.cursor() as cursor:
-            cursor.execute(sql, params or ())
-            return cursor.fetchall()
-      except Exception as e:
-          print(f'MySQL Error -- Query : {e}')
-          return False
-          
-    
-    def execute(self, sql, params=None):  # -- Request to DataBase (UPDATE, INSERT, DELETE)
-      try:
-        if not self._con:
-          self.connectDB()
-        with self._con.cursor() as cursor:
-            cursor.execute(sql, params or ())
-            self._con.commit()
-            id_request = cursor.lastrowid
-            if id_request:
-                return id_request
-            return True
-      except Exception as e:
-          print(f'MySQL Error -- Execute : {e}')
-          return False
-        
-    def close(self): # -- Close connect to DataBase
-        if self._con:
-            self._con.close()
-            self._con = None
-            print("MySQL Disconnected")
+    def execute(self, sql, params=None):
+        conn = self.get_pool().connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(sql, params or ())
+                conn.commit()
+                return cursor.lastrowid or True
+        finally:
+            conn.close()

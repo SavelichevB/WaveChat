@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from 'react'
+import React, { use, useCallback, useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { useBodyClass } from '../../hooks/useBody'
 import { useUsers } from '../../hooks/useUsers'
@@ -15,6 +15,8 @@ export function Main_chats({ initUsername }) {
   const [ selectedChat, setSelectedChat ] = useState(null)
   const [ selectUserChat, setUserChat ] = useState(null)
   const { id: userId, get_chat_username } = useChat()
+  const { get_chat } = useChat()
+  const [ chatListData, setChatListData ] = useState(null)
   const nav = useNavigate()
 
   useEffect(() => {
@@ -38,11 +40,20 @@ export function Main_chats({ initUsername }) {
     getChatId()
   }, [initUsername])
 
+  const updateChats = useCallback(async () => {
+      const res = await get_chat()
+      if(res.Success) {
+         setChatListData(res.data)
+      }
+  }, [get_chat, setChatListData])
+
   return (
    <div className='controls'>
     <div className='main'>
         <div className='list-chats'>
             <List_chats 
+              chatListData={chatListData}
+              setChatListData={setChatListData}
               selectedChat={selectedChat}
               onSelectedChat={setSelectedChat}
               userId={userId}
@@ -50,6 +61,7 @@ export function Main_chats({ initUsername }) {
         </div>
         <div className='message-chats'>
             <Message_chats
+             updateChats={updateChats}
              selectedChat={selectedChat}
              onSelectedChat={setSelectedChat}
              selectUserChat={selectUserChat}
@@ -61,11 +73,10 @@ export function Main_chats({ initUsername }) {
   )
 }
 
-export function List_chats({ selectedChat, onSelectedChat, userId }) {
+export function List_chats({ chatListData, setChatListData, selectedChat, onSelectedChat, userId }) {
     const { load, get_user_me } = useUsers()
     const [ userData, setUserData ] = useState(null)
     const { ChatLoad=load, get_chat } = useChat()
-    const [ chatData, setChatData ] = useState(null)
     const nav = useNavigate()
 
     useEffect(() => {
@@ -78,13 +89,12 @@ export function List_chats({ selectedChat, onSelectedChat, userId }) {
         const fetchChats = async () => {
             const res = await get_chat()
             if(res.Success) {
-                setChatData(res.data)
+                setChatListData(res.data)
             }
         }
         fetchUser()
         fetchChats()
     }, [])
-
 
     const handleSelectChat = (chat) => {
         if(chat.chat_id) {
@@ -113,8 +123,8 @@ export function List_chats({ selectedChat, onSelectedChat, userId }) {
                     <div className='chat' style={{pointerEvents: 'none'}}><div className='load-section'></div></div>
                     <div className='chat' style={{pointerEvents: 'none'}}><div className='load-section'></div></div>
                   </>
-                 ) : chatData && chatData.length > 0 ? (
-                    chatData.map((chat) => ( 
+                 ) : chatListData && chatListData.length > 0 ? (
+                    chatListData.map((chat) => ( 
                         <div
                             key={chat.chat_id}
                             className={`chat ${Number(selectedChat) === Number(chat.chat_id) ? 'active' : ''}`}
@@ -150,11 +160,11 @@ export function List_chats({ selectedChat, onSelectedChat, userId }) {
                                       chat.last_message_time && formatTime(chat.last_message_time)
                                   }
                               </div>
-                              { chat.unread_count > 0 &&
+                              { chat.unread > 0 &&
                                (
                                   <>
                                     <div className='notification-message'>
-                                        { chat.unread_count > 999 ? '999+' : chat.unread_count }
+                                        { chat.unread > 999 ? '999+' : chat.unread }
                                     </div>
                                   </>
                                ) 
@@ -186,12 +196,12 @@ export function List_chats({ selectedChat, onSelectedChat, userId }) {
     )
 }
 
-export function Message_chats({ selectedChat, onSelectedChat, selectUserChat, userId }) {
+export function Message_chats({ updateChats, selectedChat, onSelectedChat, selectUserChat, userId }) {
 
     const { get_chat_info } = useChat()
     const { get_user_id } = useUsers()
     const { load: loadSend, send_message_chat_id, send_message_user_id } = useMessage()
-    const { sendMessage, onMessage, onLog, onError } = useSocket(userId)
+    const { sendMessage, onMessage, onLog, onError, readMessage } = useSocket(userId)
     const [ chatData, setChatData ] = useState(null)
     const [ userData, setUserData ] = useState(null)
     const [ isLoad, setIsLoad ] = useState(false)
@@ -228,6 +238,12 @@ export function Message_chats({ selectedChat, onSelectedChat, selectUserChat, us
 
     }, [selectedChat, selectUserChat])
 
+    useEffect(() => {
+        if(chatData?.chat_id && selectedChat) {
+            handleReadMessage()
+        }
+    }, [chatData, selectedChat])
+
   const scrollToBottom = () => {
     setTimeout(() => {
         const container = document.querySelector('.all-message')
@@ -260,6 +276,15 @@ export function Message_chats({ selectedChat, onSelectedChat, selectUserChat, us
         const toId = selectUserChat || userData?.id
         sendMessage(null, toId, text, tempId)
     }
+    updateChats()
+  }
+
+  const handleReadMessage = async () => {
+     if(messagesData) {
+        if(chatData?.chat_id) {
+            readMessage(chatData?.chat_id)
+        }
+     }
   }
 
   useEffect(() => {
@@ -318,12 +343,14 @@ export function Message_chats({ selectedChat, onSelectedChat, selectUserChat, us
             </div>
             <div className='all-message'>
                  <Get_message
+                   updateChats={updateChats}
                    chatData={chatData}
                    userData={null}
                    userId={userId}
                    onSelectedChat={onSelectedChat}
                    messagesData={messagesData}
                    setMessagesData={setMessagesData}
+                   handleReadMessage={handleReadMessage}
                   />               
             </div>
             <div className='input-block'>
@@ -365,12 +392,14 @@ export function Message_chats({ selectedChat, onSelectedChat, selectUserChat, us
             </div>
             <div className='all-message'>
                  <Get_message
+                   updateChats={updateChats}
                    chatData={null}
                    userData={userData}
                    userId={userId}
                    onSelectedChat={onSelectedChat}
                    messagesData={messagesData}
                    setMessagesData={setMessagesData}
+                   handleReadMessage={handleReadMessage}
                   />               
             </div>
             <div className='input-block'>
@@ -381,7 +410,8 @@ export function Message_chats({ selectedChat, onSelectedChat, selectUserChat, us
                        value={clientText}
                        onChange={(e) => {
                          setClientText(e.target.value)
-                       }}
+                    }}
+                       
                    ></textarea>
                 </div>
                 <a 
@@ -408,10 +438,12 @@ export function Message_chats({ selectedChat, onSelectedChat, selectUserChat, us
 
 }
 
-export function Get_message({ chatData, userData, userId, onSelectedChat, messagesData, setMessagesData }) {
+export function Get_message({ updateChats, chatData, userData, userId, onSelectedChat, messagesData, setMessagesData, handleReadMessage }) {
 
     const { load, get_message } = useMessage()
-    const { isConnected, sendMessage, onMessage, onLog, onError, delMessage, onDelMessage, onDelLog, onDelError } = useSocket(userId)
+    const { isConnected, sendMessage, onMessage, onLog, onError,
+            delMessage, onDelMessage, onDelLog, onDelError,
+            readMessage, onReadMessage } = useSocket(userId)
 
     const [ idBurgerMessage, setIdBurgerMessage ] = useState(null)
 
@@ -425,6 +457,12 @@ export function Get_message({ chatData, userData, userId, onSelectedChat, messag
             if(res.Success && res.data) {
                 setMessagesData(res.data)
             }
+            else {
+                setMessagesData(null)
+            }
+            
+            handleReadMessage()
+
         }
         if(chatData) {
             getMessages()
@@ -434,6 +472,7 @@ export function Get_message({ chatData, userData, userId, onSelectedChat, messag
     useEffect(() => {
         const unsub = onMessage((msg) => {
         console.log('New message:', msg)
+        updateChats()
 
             const isCurrentChat = 
               (chatData?.chat_id && msg.chat_id === chatData?.chat_id) ||
@@ -447,10 +486,11 @@ export function Get_message({ chatData, userData, userId, onSelectedChat, messag
                     time: msg.time,
                     is_temp: false
                 }])
+                 handleReadMessage()
             }
         })
         return () => unsub?.()
-    }, [onMessage, chatData?.chat_id, userData?.id])
+    }, [onMessage, handleReadMessage, chatData?.chat_id, userData?.id])
 
     useEffect(() => {
         const unsub = onDelMessage?.((data) => {
@@ -459,6 +499,7 @@ export function Get_message({ chatData, userData, userId, onSelectedChat, messag
                 setDelMsgId(message_id)
                 setTimeout(() => {
                   setMessagesData(prev => prev.filter(msg => msg.id !== message_id))
+                  updateChats()
                 }, 300)
                 if(idBurgerMessage === message_id) {
                     setIdBurgerMessage(null)
@@ -484,6 +525,7 @@ export function Get_message({ chatData, userData, userId, onSelectedChat, messag
                 setDelMsgId(message_id)
                 setTimeout(() => {
                   setMessagesData(prev => prev.filter(msg => msg.id !== message_id))
+                  updateChats()
                 }, 300)
                 setTimeout(() => {
                   setDelMsgId(null)
@@ -492,6 +534,21 @@ export function Get_message({ chatData, userData, userId, onSelectedChat, messag
         })
         return () => unsub?.()
     }, [onDelLog])
+
+    useEffect(() => {
+        const unsub = onReadMessage?.((data) => {
+            console.log('Read your messages!')
+            const { chat_id, count } = data
+
+            if(chatData && chatData.chat_id == chat_id) {
+                setMessagesData(prev => prev.map(msg => 
+                    msg.from_id === userId ? { ...msg, is_read: 1 } : msg
+                ))
+            }
+            updateChats()
+        })
+        return () => unsub?.()
+    }, [onReadMessage, updateChats, userId])
 
     useEffect(() => {
         const closeMenu = (e) => {
@@ -574,7 +631,8 @@ export function Get_message({ chatData, userData, userId, onSelectedChat, messag
                          <div className='message-time'>
                            {formatTimeHour(msg.time)} 
                            { msg?.is_temp && ( <i className="fa-regular fa-hourglass"></i> ) }
-                           { Number(msg.from_id) === Number(userId) && ( <i className="fa-solid fa-check"></i> )  }
+                           { Number(msg.from_id) === Number(userId) && msg.is_read == 0 && ( <i className="fa-solid fa-check"></i> )  }
+                           { Number(msg.from_id) === Number(userId) && msg.is_read == 1 && ( <i className="fa-solid fa-check-double"></i> ) }
                          </div>
                      </div>
                 </div> 
@@ -637,6 +695,9 @@ export function Get_message({ chatData, userData, userId, onSelectedChat, messag
 
        return (
         <> 
+              <div className='message-info'>
+                  Напишите сообщение, чтобы начать общение
+              </div>
         </>       
        )
 }

@@ -371,7 +371,6 @@ def socket_disconnect():
 @socket.on('join')
 @cookie_token
 def socket_join(data):
-  print(f"🔥 JOIN EVENT! data={data}, client_id={request.client_id}")
   user_id = request.client_id
   if user_id:
     if request.sid not in connected_users[user_id]:
@@ -426,9 +425,6 @@ def socket_message_send(data):
 
                 for user_data in res:
                   user_id_str = str(user_data['user_id'])
-                  print(f"   - Проверяем user {user_data['user_id']}")
-                  print(f"   - Проверяем user {user_data['user_id']}")
-                  print(f"   - connected_users: {list(connected_users.keys())}") 
                   if user_id_str in connected_users:
                    for sid in connected_users[user_id_str]:
                     socket.emit('ws_message', {
@@ -464,7 +460,48 @@ def socket_message_send(data):
 
    except Exception as e:
       print(f'Error WebSockets : send_message ({e})')
-      emit('ws_error', {'type': 'Server Error'}, room=request.sid)
+      emit('ws_error', {'error': 'Server Error'}, room=request.sid)
+      return
+   
+@socket.on('read_message')
+def chat_read_message(data):
+   try:
+    token = request.cookies.get('token')
+    if not token:
+      socket.emit('ws_read_error', {'error': 'Not authorized'}, room=request.sid)
+      return   
+    decoded = decode_token(token)
+    client_id = int(decoded.get('sub'))
+    if not client_id: 
+      socket.emit('ws_read_error', {'error': 'Not authorized'}, room=request.sid)
+      return   
+
+    chat_id = data.get('chat_id') 
+
+    if not chat_id: 
+      socket.emit('ws_read_error', {'error': 'Not found chat_id'}, room=request.sid)
+      return    
+
+    check, data = pm.read_message_chat(client_id, chat_id)     
+
+    if check:
+       res = pm.db.query('''SELECT user_id
+        FROM chat_participants 
+        WHERE chat_id=%s AND user_id !=%s''', (chat_id, client_id))
+       
+       if res: 
+          for users in res:
+            user_id = str(users['user_id'])
+            if user_id in connected_users:  
+              for sid in connected_users[user_id]:                          
+                socket.emit('ws_chat_read', {
+                   'chat_id': chat_id,
+                   'count': data
+                })
+
+   except Exception as e:
+      emit('ws_read_error', {'error': 'Server Error'}, room=request.sid)
+      print(f"Error read message, web socket: {e}")
       return
    
 @socket.on('del_message')

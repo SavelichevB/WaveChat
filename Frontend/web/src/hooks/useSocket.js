@@ -100,6 +100,7 @@ export function useSocket(userId) {
                 if(socket.current) socket.current.off('ws_del_message', callback)
             }
         }
+        return () => {}
     }, [isReady])
 
     const onDelLog = useCallback((callback) => {
@@ -109,6 +110,7 @@ export function useSocket(userId) {
                 if(socket.current) socket.current.off('ws_del_log', callback)
             }
         }
+        return () => {}
     }, [isReady])
 
     const onDelError = useCallback((callback) => {
@@ -118,6 +120,29 @@ export function useSocket(userId) {
             if(socket.current) socket.current.off('ws_del_error', callback)
            }
         }
+        return () => {}
+    }, [isReady])
+
+    // Read message - web socket: 
+
+    const readMessage = useCallback((chat_id) => {
+         if(socket.current && isConnected) {
+            socket.current.emit('read_message', {
+                chat_id: chat_id
+            })
+            return true            
+         }
+         return false
+    }, [isConnected])
+
+    const onReadMessage = useCallback((callback) => {
+        if(socket.current && isReady) {
+            socket.current.on('ws_chat_read', callback)
+            return () => {
+                if(socket.current) socket.current.off('ws_chat_read', callback)
+            }
+        }
+        return () => {}
     }, [isReady])
 
     return {
@@ -130,6 +155,8 @@ export function useSocket(userId) {
       delMessage,
       onDelMessage,
       onDelLog,
-      onDelError
+      onDelError,
+      readMessage,
+      onReadMessage
     }
 }

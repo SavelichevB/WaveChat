@@ -43,7 +43,7 @@ class GetMessage:
       FROM chat_message WHERE chat_id=%s 
       ORDER BY time ASC
       LIMIT %s''', (chat_id, limit_message_chat)) 
-     if not chat_message: return True, False
+     if not chat_message: return True, []
 
      for msg in chat_message:
        if msg['text']:
@@ -111,6 +111,15 @@ class GetMessage:
             if not last_message_time:
                last_message_time = created_at
             last_message_sender = last_message[0]['from_id']
+
+       notification = 0
+
+       notific_res = self.db.query('''SELECT COUNT(*) as count
+        FROM chat_message
+          WHERE chat_id=%s AND is_read=%s AND from_id !=%s''', 
+          (chat_id, 0, client_id))
+       
+       notification = notific_res[0]['count'] if notific_res else 0
      
        user_chats.append({
               'chat_id': chat_id,
@@ -119,7 +128,8 @@ class GetMessage:
               'type': chat_type,
               'last_message': last_message_text,
               'last_sender_id': last_message_sender or None,
-              'last_message_time': last_message_time or None
+              'last_message_time': last_message_time or None,
+              'unread': notification or 0
           })
        user_chats.sort(key=lambda x: x['last_message_time'] or datetime.datetime.min, reverse=True)
         
@@ -267,6 +277,20 @@ class PostMessage(GetMessage):
 
     except Exception as e:
       return False, "Server Error", None
+    
+  def read_message_chat(self, client_id, chat_id): 
+     try:
+        if not client_id or not chat_id: return False, 'Data not found'
+
+        res = self.db.execute('''UPDATE chat_message 
+          SET is_read=%s WHERE
+            chat_id=%s AND from_id !=%s AND is_read=%s''', 
+              (1, chat_id, client_id, 0))
+        return True, res
+     except Exception as e:
+        print(f"Error read message: {e}")
+        return False, 'Server Error'
+     
     
   def delete_message(self, client_id, message_id):
       try:

@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3333/'
+const API_URL = '/'
 
 const headers = {
   'Content-Type': 'application/json',
@@ -10,7 +10,6 @@ export const apiSend = {
       const res = await fetch(`${API_URL}${url}`, {
         method: 'POST',
         credentials: 'include',
-        mode: 'cors',
         headers: headers,
         body: JSON.stringify(data)
       })
@@ -33,7 +32,6 @@ export const apiSend = {
       const res = await fetch(`${API_URL}${url}`, {
         method: 'GET',
         credentials: 'include',
-        mode: 'cors',
         headers: headers,
       })
       const dataRes = await res.json()
